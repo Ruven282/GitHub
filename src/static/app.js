@@ -14,6 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
       activitiesList.innerHTML = "";
 
       // Populate activities list
+      // Clear previous options (keep placeholder)
+      const existingPlaceholder = activitySelect.querySelector('option[value=""]');
+      activitySelect.innerHTML = "";
+      if (existingPlaceholder) activitySelect.appendChild(existingPlaceholder);
+
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
@@ -29,11 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         activitiesList.appendChild(activityCard);
 
-        // Add option to select dropdown
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        activitySelect.appendChild(option);
+        // Add option to select dropdown if not already present
+        if (!Array.from(activitySelect.options).some(o => o.value === name)) {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          activitySelect.appendChild(option);
+        }
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
@@ -47,6 +54,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const email = document.getElementById("email").value;
     const activity = document.getElementById("activity").value;
+
+    // Normalize email on client-side too
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Disable submit to avoid double-submits
+    const submitButton = signupForm.querySelector('button[type="submit"]');
+    if (submitButton) submitButton.disabled = true;
 
     try {
       const response = await fetch(
@@ -72,11 +86,14 @@ document.addEventListener("DOMContentLoaded", () => {
       // Hide message after 5 seconds
       setTimeout(() => {
         messageDiv.classList.add("hidden");
+        // Re-enable submit after message hides
+        if (submitButton) submitButton.disabled = false;
       }, 5000);
     } catch (error) {
       messageDiv.textContent = "Failed to sign up. Please try again.";
       messageDiv.className = "error";
       messageDiv.classList.remove("hidden");
+      if (submitButton) submitButton.disabled = false;
       console.error("Error signing up:", error);
     }
   });
