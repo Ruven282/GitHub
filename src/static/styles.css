@@ -142,3 +142,47 @@ footer {
   padding: 20px;
   color: #666;
 }
+
+/* Participants styling */
+.participants-section {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.participants-list {
+  margin: 8px 0 0 18px;
+  padding: 0;
+  list-style: disc;
+}
+
+.participants-list li {
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  display: inline-block;
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 1;
+}
+
+/* Small visual cue when no participants yet */
+.no-participants {
+  margin: 8px 0 0 0;
+  font-style: italic;
+  color: #777;
+  padding: 6px 8px;
+  background: #fafafa;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Ensure good wrapping on narrow screens */
+@media (max-width: 480px) {
+  .participants-list li {
+    display: block;
+    width: 100%;
+  }
+}
