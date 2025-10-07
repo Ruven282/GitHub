@@ -38,6 +38,45 @@ activities = {
         "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
         "max_participants": 30,
         "participants": ["john@mergington.edu", "olivia@mergington.edu"]
+    },
+    # Sports related activities
+    "Soccer Team": {
+        "description": "Join the school soccer team and compete in matches",
+        "schedule": "Wednesdays, 4:00 PM - 5:30 PM",
+        "max_participants": 18,
+        "participants": ["alex@mergington.edu", "lucas@mergington.edu"]
+    },
+    "Basketball Club": {
+        "description": "Practice basketball skills and play friendly games",
+        "schedule": "Mondays, 3:30 PM - 5:00 PM",
+        "max_participants": 15,
+        "participants": ["mia@mergington.edu", "noah@mergington.edu"]
+    },
+    # Artistic activities
+    "Art Workshop": {
+        "description": "Explore painting, drawing, and sculpture techniques",
+        "schedule": "Thursdays, 4:00 PM - 5:30 PM",
+        "max_participants": 16,
+        "participants": ["ava@mergington.edu", "liam@mergington.edu"]
+    },
+    "Drama Club": {
+        "description": "Act, direct, and produce school plays and performances",
+        "schedule": "Fridays, 3:30 PM - 5:30 PM",
+        "max_participants": 20,
+        "participants": ["ella@mergington.edu", "jack@mergington.edu"]
+    },
+    # Intellectual activities
+    "Math Olympiad": {
+        "description": "Prepare for math competitions and solve challenging problems",
+        "schedule": "Tuesdays, 4:00 PM - 5:00 PM",
+        "max_participants": 10,
+        "participants": ["ethan@mergington.edu", "grace@mergington.edu"]
+    },
+    "Science Club": {
+        "description": "Conduct experiments and explore scientific concepts",
+        "schedule": "Wednesdays, 3:30 PM - 4:30 PM",
+        "max_participants": 14,
+        "participants": ["chloe@mergington.edu", "ben@mergington.edu"]
     }
 }
 
@@ -54,6 +93,10 @@ def get_activities():
 
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
+    # Validate student is not already signed up
+    if not isinstance(email, str) or not email.strip():
+        raise HTTPException(status_code=400, detail="Invalid email")
+
     """Sign up a student for an activity"""
     # Validate activity exists
     if activity_name not in activities:
@@ -62,6 +105,23 @@ def signup_for_activity(activity_name: str, email: str):
     # Get the specific activity
     activity = activities[activity_name]
 
+    # Normalize and validate email
+    if not isinstance(email, str) or not email.strip():
+        raise HTTPException(status_code=400, detail="Invalid email")
+
+    normalized_email = email.strip().lower()
+
+    participants = activity.setdefault("participants", [])
+    max_participants = activity.get("max_participants")
+
+    # Check for duplicate signup
+    if normalized_email in [p.strip().lower() for p in participants]:
+        raise HTTPException(status_code=400, detail="Student already signed up for this activity")
+
+    # Check capacity (if configured)
+    if isinstance(max_participants, int) and len(participants) >= max_participants:
+        raise HTTPException(status_code=400, detail="Activity is full")
+
     # Add student
-    activity["participants"].append(email)
-    return {"message": f"Signed up {email} for {activity_name}"}
+    participants.append(normalized_email)
+    return {"message": f"Signed up {normalized_email} for {activity_name}"}
